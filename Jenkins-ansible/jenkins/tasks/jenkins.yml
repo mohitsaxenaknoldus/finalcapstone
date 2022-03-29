@@ -1,6 +1,0 @@
----
-- name: Install jenkins
-  apt:
-    update_cache: yes
-    name: jenkins
-    state: latest

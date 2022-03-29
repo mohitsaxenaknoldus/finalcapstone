@@ -1,0 +1,6 @@
+---
+  - name: Setup Jenkins server
+    hosts: localhost
+    become: yes
+    roles:
+    - install-role

@@ -1,5 +1,0 @@
-- hosts: demo
-  become: yes
-  roles:
-       - jenkins
-  gather_fact: false
