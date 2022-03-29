@@ -1,27 +1,9 @@
-
-  
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: sc 
+  name: minikube-hostpath
 provisioner: k8s.io/minikube-hostpath
 reclaimPolicy: Delete
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb
-  namespace: finalcapstone
-spec:
-  clusterIP: None
-  publishNotReadyAddresses: true
-  ports:
-  - name: mongodb
-    port: 27017
-    targetPort: 27017
-  selector:
-    db: mongodb
 
 ---
 
@@ -34,12 +16,12 @@ spec:
   serviceName: mongodb
   selector:
     matchLabels:
-      db: mongodb
+      app: mongodb
   replicas: 3
   template:
     metadata:
       labels:
-        db: mongodb
+        app: mongodb
     
     spec:
       securityContext:
@@ -92,16 +74,12 @@ spec:
         resources:
           requests:
             storage: 1G
-        storageClassName: sc
+        storageClassName: standard
 
 
 ---
 
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mongo-config
-  namespace: finalcapstone
 data:
   script.sh: |-
     #!/bin/bash
@@ -114,3 +92,25 @@ data:
     
     fi
     exec /opt/bitnami/scripts/mongodb/entrypoint.sh /opt/bitnami/scripts/mongodb/run.sh
+kind: ConfigMap
+metadata:
+  name: mongo-config
+  namespace: finalcapstone
+---
+
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: finalcapstone
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+  - name: mongodb
+    port: 27017
+    targetPort: 27017
+  selector:
+    app: mongodb
