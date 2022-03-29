@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  namespace: finalcapstone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: myapp
+        image: kirtighugtyal/final_capstone
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        env:
+          - name: MONGODB_TABLE
+            value: "Capstone"
+          - name: MONGODB_HOST
+            value: "mongodb-0.mongodb"
+          - name: MONGODB_PORT
+            value: "27017"

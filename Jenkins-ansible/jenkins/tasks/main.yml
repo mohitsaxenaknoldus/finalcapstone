@@ -1,0 +1,10 @@
+---
+- import_tasks: java.yml
+
+- import_tasks: add_key.yml
+
+- import_tasks: add_repo.yml
+
+- import_tasks: jenkins.yml
+  notify:
+    - restart jenkins

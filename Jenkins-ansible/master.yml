@@ -1,0 +1,5 @@
+- hosts: node1
+  #become: yes
+  roles:
+    - jenkins
+  become: yes
