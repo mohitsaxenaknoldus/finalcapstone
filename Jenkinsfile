@@ -1,5 +1,10 @@
 pipeline{
-    agent any
+    agent {
+        docker {
+            image 'docker:20.10.8'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     environment {
         DOCKER_HUB_CREDENTIALS = '24f40dbb-1e8f-4826-98c4-d79d97bba191'
         DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
@@ -43,6 +48,7 @@ pipeline{
         stage('Build and Push Docker Image') {
             steps {
                 script {
+                    apk add --no-cache docker
                     def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
                     docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}") {
                     dockerImage.push()
