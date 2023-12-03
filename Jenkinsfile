@@ -43,9 +43,9 @@ pipeline{
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    docker.build("kirtighugtyal006/mvn-hello-world:latest")
-                    docker.withRegistry('https://registry.hub.docker.com', '24f40dbb-1e8f-4826-98c4-d79d97bba191') {
-                    docker.image("kirtighugtyal006/mvn-hello-world:latest").push()
+                    def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}") {
+                    dockerImage.push()
                     }
                 }
             }
