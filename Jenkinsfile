@@ -13,7 +13,12 @@ pipeline{
             stage("clean")
             {
                 steps{
-                    sh "mvn clean"
+                    script {
+                        withMaven(
+                            maven: 'Maven3', 
+                            goals: 'clean install'
+                        )
+                    }
                 }
             }
             stage("Build")
