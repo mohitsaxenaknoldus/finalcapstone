@@ -1,10 +1,5 @@
 pipeline{
-    agent {
-            docker {
-                image 'docker:20.10.8' // Use a Docker image with Docker CLI installed
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     environment {
         DOCKER_HUB_CREDENTIALS = '24f40dbb-1e8f-4826-98c4-d79d97bba191'
         DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
