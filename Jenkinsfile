@@ -45,9 +45,12 @@ pipeline{
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    sh 'docker --version'
+                    def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}") {
+                        dockerImage.push()
                     }
                 }
+            }
         }
         // stage('Push to Docker Hub') {
         //     steps {
