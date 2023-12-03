@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        DOCKER_HUB_CREDENTIALS = '24f40dbb-1e8f-4826-98c4-d79d97bba191'
+        DOCKER_HUB_CREDENTIALS = 'b43dd413-d663-41de-ab0b-4ab331602aaa'
         DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
         DOCKER_IMAGE_TAG = 'latest'
         DOCKER_HOME = tool 'docker'
