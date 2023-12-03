@@ -15,7 +15,7 @@ pipeline{
                 steps{
                     script {
                         withMaven(
-                            maven: 'Maven3', 
+                            maven: 'maven3', 
                             goals: 'clean install'
                         ){}
                     }
