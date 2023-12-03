@@ -43,7 +43,7 @@ pipeline{
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    apk add --no-cache docker
+                    sh 'curl -fsSL https://get.docker.com | sh'
                     def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
                     docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}") {
                     dockerImage.push()
