@@ -1,8 +1,10 @@
 pipeline{
     agent any
- // tools {
- //        maven 'maven3'
- //    }
+    environment {
+        DOCKER_HUB_CREDENTIALS = '24f40dbb-1e8f-4826-98c4-d79d97bba191'
+        DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
+        DOCKER_IMAGE_TAG = 'latest'
+    }
     stages
        {
             stage("Build")
@@ -38,29 +40,25 @@ pipeline{
                     }
                 }
             }
-             stage("package")
-            {
-                steps{
-                    sh "mvn package"
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
                 }
             }
-             stage("building docker image"){
-                    steps{
-                        script{
-                            dockerImage = docker.build dockerhub_repo + ":$GIT_COMMIT-build-$BUILD_NUMBER"
-                        }
+        }
 
-                     }
-                }
-            stage("Pushing the docker image"){
-                    steps{
-                        script {
-                            docker.withRegistry('', dockerhub_creds){
-                                dockerImage.push('latest')
-                            }
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: "${DOCKER_HUB_CREDENTIALS}", variable: 'DOCKER_HUB_CREDS')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDS}") {
+                            docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}").push()
                         }
                     }
                 }
+            }
+        }
              stage("Deploying"){
                     steps{
                         withKubeConfig([credentialsId: 'kube-config']){
