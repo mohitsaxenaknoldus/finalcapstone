@@ -17,7 +17,7 @@ pipeline{
                         withMaven(
                             maven: 'Maven3', 
                             goals: 'clean install'
-                        )
+                        ){}
                     }
                 }
             }
