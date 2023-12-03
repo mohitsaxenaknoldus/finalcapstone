@@ -1,5 +1,10 @@
 pipeline{
-    agent any
+    agent {
+            docker {
+                image 'docker:20.10.8' // Use a Docker image with Docker CLI installed
+                args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     environment {
         DOCKER_HUB_CREDENTIALS = '24f40dbb-1e8f-4826-98c4-d79d97bba191'
         DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
@@ -40,16 +45,16 @@ pipeline{
                     }
                 }
             }
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
-                    sh 'docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .'
-                    sh 'docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}'
+                    docker.build("kirtighugtyal006/mvn-hello-world:latest")
+                    docker.withRegistry('https://registry.hub.docker.com', '24f40dbb-1e8f-4826-98c4-d79d97bba191') {
+                    docker.image("kirtighugtyal006/mvn-hello-world:latest").push()
+                    }
                 }
             }
         }
-
         stage('Push to Docker Hub') {
             steps {
                 script {
