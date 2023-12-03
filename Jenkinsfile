@@ -48,7 +48,6 @@ pipeline{
                     sh 'docker --version'
                     }
                 }
-            }
         }
         // stage('Push to Docker Hub') {
         //     steps {
