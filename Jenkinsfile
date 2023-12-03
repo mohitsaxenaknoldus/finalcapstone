@@ -1,95 +1,62 @@
-pipeline{
-    agent any
-    environment {
-        DOCKER_HUB_CREDENTIALS = 'b43dd413-d663-41de-ab0b-4ab331602aaa'
-        DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
-        DOCKER_IMAGE_TAG = 'latest'
-        DOCKER_HOME = tool 'docker'
-        PATH = "${DOCKER_HOME}/bin:${env.PATH}"
+pipeline {
+  agent any
+  environment {
+    DOCKER_HUB_CREDENTIALS = 'b43dd413-d663-41de-ab0b-4ab331602aaa'
+    DOCKER_IMAGE_NAME = 'kirtighugtyal006/mvn-hello-world'
+    DOCKER_IMAGE_TAG = 'latest'
+    DOCKER_HOME = tool 'docker'
+    PATH = "${DOCKER_HOME}/bin:${env.PATH}"
+  }
+  stages {
+    stage("Build") {
+      steps {
+        script {
+          withMaven(
+            maven: 'maven3',
+            goals: 'clean install'
+          ) {}
+        }
+      }
     }
-    stages
-       {
-            stage("Build")
-            {
-                steps{
-                    script {
-                        withMaven(
-                            maven: 'maven3', 
-                            goals: 'clean install'
-                        ){}
-                    }
-                }
-            }
-            stage("Test")
-            {
-                steps{
-                    script {
-                        withMaven(
-                            maven: 'maven3', 
-                            goals: 'test'
-                        ){}
-                    }
-                }
-            }
-             stage("Integration Tests")
-            {
-                steps{
-                    script {
-                        withMaven(
-                            maven: 'maven3', 
-                            goals: 'integration-test'
-                        ){}
-                    }
-                }
-            }
-        stage('Build and Push Docker Image') {
-            steps {
-                script {
-                    def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
-                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}") {
-                        dockerImage.push()
-                    }
-                }
-            }
+    stage("Test") {
+      steps {
+        script {
+          withMaven(
+            maven: 'maven3',
+            goals: 'test'
+          ) {}
         }
-        // stage('Push to Docker Hub') {
-        //     steps {
-        //         script {
-        //             withCredentials([string(credentialsId: "${DOCKER_HUB_CREDENTIALS}", variable: 'DOCKER_HUB_CREDS')]) {
-        //                 docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDS}") {
-        //                     docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}").push()
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-             // stage("Deploying"){
-             //        steps{
-             //            withKubeConfig([credentialsId: 'kube-config']){
-             //                sh 'pwd && ls'
-             //                sh 'kubectl apply -f kubernetes/mongodb/mongodb.yml'
-             //                sh 'kubectl apply -f kubernetes/app/deployment.yml'
-             //                sh 'kubectl apply -f kubernetes/app/nodeport.yml'
-             //                sh 'kubectl get all'
-             //            }
-             //        }
-             //    }
+      }
+    }
+    stage("Integration Tests") {
+      steps {
+        script {
+          withMaven(
+            maven: 'maven3',
+            goals: 'integration-test'
+          ) {}
         }
-        // post {
-        //     success {
-        //         setBuildStatus("Build succeeded", "SUCCESS");
-        //     }
-        //     failure {
-        //         setBuildStatus("Build failed", "FAILURE");
-        //     }
-        //   }
+      }
+    }
+    stage('Build and Push Image to Docker Hub') {
+      steps {
+        script {
+          def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+          docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}") {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage("Deploy") {
+      steps {
+        withKubeConfig([credentialsId: 'kube-config']) {
+          sh 'kubectl apply -f kubernetes/namespace/namespace.yml'
+          sh 'kubectl apply -f kubernetes/app/deployment.yml'
+          sh 'kubectl apply -f prometheus-config.yaml'
+          sh 'kubectl apply -f grafana-config.yaml'
+        }
+      }
+    }
+  }
 }
-// void setBuildStatus(String message, String state) {
-//   step([
-//       $class: "GitHubCommitStatusSetter",
-//       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KirtiGhugtyal6/FINAL_CAPSTONE"],
-//       contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
-//       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
-//       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
-//   ]);
-// }
