@@ -1,16 +1,11 @@
 pipeline{
     agent any
-     environment{
-        dockerhub_repo = "kirtighugtyal/final_capstone"
-        dockerhub_creds = 'e9f78131-b451-409e-844d-21da4dd448ed'
-        dockerImage = ''
-     }
  tools {
         maven 'maven3'
     }
     stages
        {
-            stage("clean")
+            stage("Build")
             {
                 steps{
                     script {
@@ -21,18 +16,26 @@ pipeline{
                     }
                 }
             }
-            stage("Build")
+            stage("Test")
             {
                 steps{
-                    sh "mvn compile"
+                    script {
+                        withMaven(
+                            maven: 'maven3', 
+                            goals: 'test'
+                        ){}
+                    }
                 }
-
             }
-             stage("TEST")
+             stage("Integration Tests")
             {
                 steps{
-                    sh "mvn test"
-
+                    script {
+                        withMaven(
+                            maven: 'maven3', 
+                            goals: 'integration-test'
+                        ){}
+                    }
                 }
             }
              stage("package")
